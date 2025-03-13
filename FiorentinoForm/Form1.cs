@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -45,10 +46,12 @@ namespace FiorentinoForm
         }
 
 
-
-        private void LoadLista(List<participante> listaParticipantes)
+        private void LoadLista(List<participante> listaParticipantes, Boolean order = false)
         {
-            listaParticipantes = listaParticipantes.OrderByDescending(x => x.pontos).ToList();
+            if (!order)
+            {
+                listaParticipantes = listaParticipantes.OrderByDescending(x => x.pontos).ToList();
+            }
 
 
             flowLayoutPanel1.Controls.Clear();
@@ -69,7 +72,8 @@ namespace FiorentinoForm
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            var listParticpantes = listaParticipantes.ToList();
+            var listPar = listaParticipantes.ToList();
+            bool orderByPoints = false;
 
             if (string.IsNullOrEmpty(textBox1.Text))
             {
@@ -77,46 +81,102 @@ namespace FiorentinoForm
                 return;
             }
 
-            string pesquisa = "";
-            if(textBox1.Text.StartsWith(">"))
+            string pesquisa = textBox1.Text;
+            if (pesquisa.StartsWith(">"))
             {
-                pesquisa = textBox1.Text.Replace(">", "");
-                if(int.TryParse(pesquisa, out int valor))
+                pesquisa = pesquisa.Replace(">", "");
+                if (int.TryParse(pesquisa, out int valor))
                 {
-                    listParticpantes = listParticpantes.Where(x => x.pontos > valor).ToList();
-                }
-            }else if(textBox1.Text.StartsWith("<"))
-            {
-                pesquisa = textBox1.Text.Replace("<", "");
-                if(int.TryParse(pesquisa, out int valor))
-                {
-                    listParticpantes = listParticpantes.Where(x => x.pontos < valor).ToList() ;
+                    listPar = listPar.Where(x => x.pontos > valor).ToList();
                 }
             }
-            else if (textBox1.Text.StartsWith("+"))
+            else if (pesquisa.StartsWith("<"))
             {
-                pesquisa = textBox1.Text.Replace("+", "");
-                listParticpantes = listParticpantes.Where(x => x.cidade.estado.Sigla.ToLower() == pesquisa.ToLower()).ToList();
+                pesquisa = pesquisa.Replace("<", "");
+                if (int.TryParse(pesquisa, out int valor))
+                {
+                    listPar = listPar.Where(x => x.pontos < valor).ToList();
+                }
             }
-            else if(textBox1.Text.All(char.IsDigit))
+            else if (pesquisa.StartsWith("+"))
             {
-                var pontos = int.Parse(textBox1.Text);
-                listParticpantes = listParticpantes.Where(x => x.pontos == pontos).ToList();
+                pesquisa = pesquisa.Replace("+", "");
+                listPar = listPar.Where(x => x.cidade.estado.Sigla.ToLower() == pesquisa.ToLower()).ToList();
+            }
+            else if (pesquisa.StartsWith(">="))
+            {
+                pesquisa = pesquisa.Replace(">=", "");
+                if (int.TryParse(pesquisa, out int valor))
+                {
+                    listPar = listPar.Where(x => x.pontos >= valor).ToList();
+                }
+            }
+            else if (pesquisa.StartsWith("<="))
+            {
+                pesquisa = pesquisa.Replace("<=", "");
+                if (int.TryParse(pesquisa, out int valor))
+                {
+                    listPar = listPar.Where(x => x.pontos <= valor).ToList();
+                }
+            }
+            else if (pesquisa.StartsWith("%") || pesquisa.EndsWith("%"))
+            {
+                pesquisa = pesquisa.Replace("%", "");
+                if (!string.IsNullOrEmpty(pesquisa))
+                {
+                    if (pesquisa.StartsWith("%") && pesquisa.EndsWith("%"))
+                    {
+                        listPar = listPar.Where(x => !string.IsNullOrEmpty(x.nome) && x.nome.ToLower().Contains(pesquisa.ToLower())).ToList();
+                    }
+                    else if (pesquisa.StartsWith("%"))
+                    {
+                        listPar = listPar.Where(x => !string.IsNullOrEmpty(x.nome) && x.nome.ToLower().EndsWith(pesquisa.ToLower())).ToList();
+                    }
+                    else if (pesquisa.EndsWith("%"))
+                    {
+                        listPar = listPar.Where(x => !string.IsNullOrEmpty(x.nome) && x.nome.ToLower().StartsWith(pesquisa.ToLower())).ToList();
+                    }
+                }
+            }
+            else if (pesquisa.StartsWith("!>"))
+            {
+                pesquisa = pesquisa.Replace("!>", "");
+                if (pesquisa.ToLower() == "pa")
+                {
+                    listPar = listPar.OrderBy(x => x.nome).ToList();
+                    orderByPoints = true;
+                }
+                else if (pesquisa.ToLower() == "po")
+                {
+                    listPar = listPar.OrderBy(x => x.pontos).ToList();
+                    orderByPoints = true;
+                }
+            }
+            else if (pesquisa.StartsWith("!<"))
+            {
+                pesquisa = pesquisa.Replace("!<", "");
+                if (pesquisa.ToLower() == "pa")
+                {
+                    listPar = listPar.OrderByDescending(x => x.nome).ToList();
+                    orderByPoints = true;
+                }
+                else if (pesquisa.ToLower() == "po")
+                {
+                    orderByPoints = false;
+                }
+            }
+            else if (pesquisa.All(char.IsDigit))
+            {
+                var pontos = int.Parse(pesquisa);
+                listPar = listPar.Where(x => x.pontos == pontos).ToList();
             }
             else
             {
-                listParticpantes = listParticpantes.Where(x => x.nome.ToLower().Contains(textBox1.Text.ToLower())).ToList();
+                listPar = listPar.Where(x => x.nome.ToLower().Contains(pesquisa.ToLower())).ToList();
             } 
 
 
-            LoadLista(listParticpantes);
-
-
-            
-
-
-
-
+            LoadLista(listPar, orderByPoints);
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)

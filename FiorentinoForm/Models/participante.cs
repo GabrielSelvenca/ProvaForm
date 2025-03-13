@@ -26,7 +26,9 @@ namespace FiorentinoForm.Models
         public Nullable<int> idade { get; set; }
         public Nullable<int> cidadeId { get; set; }
         public string genero { get; set; }
-    
+        public double pontos { get; set; }
+        public int posicao { get; set; }
+
         public virtual cidade cidade { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<participantes_evento> participantes_evento { get; set; }
