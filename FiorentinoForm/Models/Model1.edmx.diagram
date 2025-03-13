@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="2253ea0cd7ab462680c9cf9d8cc6ada8" Name="Diagram1" ZoomLevel="126">
+        <EntityTypeShape EntityType="MobileALModel.cidade" Width="1.5" PointX="1.5" PointY="10.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="MobileALModel.estado" Width="1.5" PointX="1.5" PointY="13.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="MobileALModel.estoque" Width="1.5" PointX="3" PointY="3.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="MobileALModel.evento" Width="1.5" PointX="3.75" PointY="7" IsExpanded="true" />
+        <EntityTypeShape EntityType="MobileALModel.loja" Width="1.5" PointX="0.75" PointY="3.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="MobileALModel.participante" Width="1.5" PointX="3.75" PointY="9.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="MobileALModel.participantes_evento" Width="1.5" PointX="6" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MobileALModel.produto" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MobileALModel.regiao" Width="1.5" PointX="1.5" PointY="16.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="MobileALModel.sysdiagrams" Width="1.5" PointX="8.75" PointY="1.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="MobileALModel.tipo_evento" Width="1.5" PointX="1.5" PointY="7.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="MobileALModel.vendas" Width="1.5" PointX="6" PointY="3" IsExpanded="true" />
+        <AssociationConnector Association="MobileALModel.FK_cidade_estado" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileALModel.FK_participante_cidade" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileALModel.FK_estado_regiao" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileALModel.FK_estoque_loja" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileALModel.FK_estoque_produto" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileALModel.FK_evento_tipo_evento" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileALModel.FK_participantes_evento_evento" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileALModel.FK_vendas_evento" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileALModel.FK_vendas_loja" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileALModel.FK_participantes_evento_participante" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileALModel.FK_vendas_participante" ManuallyRouted="false" />
+        <AssociationConnector Association="MobileALModel.FK_vendas_produto" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
