@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using FiorentinoForm.Components;
@@ -31,6 +28,9 @@ namespace FiorentinoForm
 
         MobileALEntities ctx = new MobileALEntities();
         List<participante> listaParticipantes = new List<participante>();
+
+        private Timer filterTimer;
+
         private void Form1_Load(object sender, EventArgs e)
         {
             listaParticipantes = ctx.participante.Take(200).ToList();
@@ -40,9 +40,18 @@ namespace FiorentinoForm
             }
             comboBox1.Items.AddRange(ctx.estado.Select(x => x.Sigla).OrderBy(x => x).ToArray());
 
+            filterTimer = new Timer();
+            filterTimer.Interval = 500;
+            filterTimer.Tick += FilterTimer_Tick;
 
             LoadLista(listaParticipantes);
 
+        }
+
+        private void FilterTimer_Tick(object sender, EventArgs e)
+        {
+            filterTimer.Stop();
+            ApplyFilter(textBox1.Text);
         }
 
 
@@ -65,15 +74,9 @@ namespace FiorentinoForm
             }
         }
 
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void ApplyFilter(string pesquisa)
         {
             var listPar = listaParticipantes.ToList();
-            bool orderByPoints = false;
 
             if (string.IsNullOrEmpty(textBox1.Text))
             {
@@ -81,8 +84,29 @@ namespace FiorentinoForm
                 return;
             }
 
-            string pesquisa = textBox1.Text;
-            if (pesquisa.StartsWith(">"))
+            bool orderByPoints = false;
+            if (pesquisa.StartsWith(">="))
+            {
+                pesquisa = pesquisa.Replace(">=", "").Trim();
+                if (int.TryParse(pesquisa, out int valor))
+                {
+                    listPar = listPar.Where(x => x.pontos >= valor).ToList();
+                }
+            }
+            else if (pesquisa.StartsWith("<="))
+            {
+                pesquisa = pesquisa.Replace("<=", "");
+                if (int.TryParse(pesquisa, out int valor))
+                {
+                    listPar = listPar.Where(x => x.pontos <= valor).ToList();
+                }
+            }
+            else if (pesquisa.StartsWith("+"))
+            {
+                pesquisa = pesquisa.Replace("+", "");
+                listPar = listPar.Where(x => x.cidade.estado.Sigla.ToLower() == pesquisa.ToLower()).ToList();
+            }
+            else if (pesquisa.StartsWith(">"))
             {
                 pesquisa = pesquisa.Replace(">", "");
                 if (int.TryParse(pesquisa, out int valor))
@@ -98,43 +122,26 @@ namespace FiorentinoForm
                     listPar = listPar.Where(x => x.pontos < valor).ToList();
                 }
             }
-            else if (pesquisa.StartsWith("+"))
-            {
-                pesquisa = pesquisa.Replace("+", "");
-                listPar = listPar.Where(x => x.cidade.estado.Sigla.ToLower() == pesquisa.ToLower()).ToList();
-            }
-            else if (pesquisa.StartsWith(">="))
-            {
-                pesquisa = pesquisa.Replace(">=", "");
-                if (int.TryParse(pesquisa, out int valor))
-                {
-                    listPar = listPar.Where(x => x.pontos >= valor).ToList();
-                }
-            }
-            else if (pesquisa.StartsWith("<="))
-            {
-                pesquisa = pesquisa.Replace("<=", "");
-                if (int.TryParse(pesquisa, out int valor))
-                {
-                    listPar = listPar.Where(x => x.pontos <= valor).ToList();
-                }
-            }
             else if (pesquisa.StartsWith("%") || pesquisa.EndsWith("%"))
             {
-                pesquisa = pesquisa.Replace("%", "");
-                if (!string.IsNullOrEmpty(pesquisa))
+                
+                if (!string.IsNullOrEmpty(pesquisa.Replace("%", "")))
                 {
+                    
                     if (pesquisa.StartsWith("%") && pesquisa.EndsWith("%"))
                     {
-                        listPar = listPar.Where(x => !string.IsNullOrEmpty(x.nome) && x.nome.ToLower().Contains(pesquisa.ToLower())).ToList();
+                        pesquisa = pesquisa.Replace("%", "");
+                        listPar = listPar.Where(x => x.nome.ToLower().Contains(pesquisa.ToLower())).ToList();
                     }
                     else if (pesquisa.StartsWith("%"))
                     {
-                        listPar = listPar.Where(x => !string.IsNullOrEmpty(x.nome) && x.nome.ToLower().EndsWith(pesquisa.ToLower())).ToList();
+                        pesquisa = pesquisa.Replace("%", "");
+                        listPar = listPar.Where(x => x.nome.ToLower().EndsWith(pesquisa.ToLower())).ToList();
                     }
                     else if (pesquisa.EndsWith("%"))
                     {
-                        listPar = listPar.Where(x => !string.IsNullOrEmpty(x.nome) && x.nome.ToLower().StartsWith(pesquisa.ToLower())).ToList();
+                        pesquisa = pesquisa.Replace("%", "");
+                        listPar = listPar.Where(x => x.nome.ToLower().StartsWith(pesquisa.ToLower())).ToList();
                     }
                 }
             }
@@ -158,7 +165,7 @@ namespace FiorentinoForm
                 if (pesquisa.ToLower() == "pa")
                 {
                     listPar = listPar.OrderByDescending(x => x.nome).ToList();
-                    orderByPoints = true;
+                    orderByPoints = false;
                 }
                 else if (pesquisa.ToLower() == "po")
                 {
@@ -173,10 +180,20 @@ namespace FiorentinoForm
             else
             {
                 listPar = listPar.Where(x => x.nome.ToLower().Contains(pesquisa.ToLower())).ToList();
-            } 
-
+            }
 
             LoadLista(listPar, orderByPoints);
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            filterTimer.Stop();
+            filterTimer.Start();
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
