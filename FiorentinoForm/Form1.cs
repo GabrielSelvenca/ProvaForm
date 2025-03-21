@@ -41,7 +41,7 @@ namespace FiorentinoForm
             comboBox1.Items.AddRange(ctx.estado.Select(x => x.Sigla).OrderBy(x => x).ToArray());
 
             filterTimer = new Timer();
-            filterTimer.Interval = 500;
+            filterTimer.Interval = 700;
             filterTimer.Tick += FilterTimer_Tick;
 
             LoadLista(listaParticipantes);
@@ -55,13 +55,16 @@ namespace FiorentinoForm
         }
 
 
-        private void LoadLista(List<participante> listaParticipantes, Boolean order = false)
+        private void LoadLista(List<participante> listaParticipantes, bool orderDescending = true, bool orderByPoints = true)
         {
-            if (!order)
+            if (orderDescending)
             {
-                listaParticipantes = listaParticipantes.OrderByDescending(x => x.pontos).ToList();
+                listaParticipantes = listaParticipantes.OrderByDescending(x => orderByPoints ? (int?)x.pontos : (object)x.nome).ToList();
             }
-
+            else
+            {
+                listaParticipantes = listaParticipantes.OrderBy(x => orderByPoints ? (int?)x.pontos : (object)x.nome).ToList();
+            }
 
             flowLayoutPanel1.Controls.Clear();
 
@@ -84,7 +87,6 @@ namespace FiorentinoForm
                 return;
             }
 
-            bool orderByPoints = false;
             if (pesquisa.StartsWith(">="))
             {
                 pesquisa = pesquisa.Replace(">=", "").Trim();
@@ -150,27 +152,26 @@ namespace FiorentinoForm
                 pesquisa = pesquisa.Replace("!>", "");
                 if (pesquisa.ToLower() == "pa")
                 {
-                    listPar = listPar.OrderBy(x => x.nome).ToList();
-                    orderByPoints = true;
+                    LoadLista(listPar, false, false);
                 }
                 else if (pesquisa.ToLower() == "po")
                 {
-                    listPar = listPar.OrderBy(x => x.pontos).ToList();
-                    orderByPoints = true;
+                    LoadLista(listPar);
                 }
+                return;
             }
             else if (pesquisa.StartsWith("!<"))
             {
                 pesquisa = pesquisa.Replace("!<", "");
                 if (pesquisa.ToLower() == "pa")
                 {
-                    listPar = listPar.OrderByDescending(x => x.nome).ToList();
-                    orderByPoints = false;
+                    LoadLista(listPar, true, false);
                 }
                 else if (pesquisa.ToLower() == "po")
                 {
-                    orderByPoints = false;
+                    LoadLista(listPar, false);
                 }
+                return;
             }
             else if (pesquisa.All(char.IsDigit))
             {
@@ -182,7 +183,7 @@ namespace FiorentinoForm
                 listPar = listPar.Where(x => x.nome.ToLower().Contains(pesquisa.ToLower())).ToList();
             }
 
-            LoadLista(listPar, orderByPoints);
+            LoadLista(listPar);
         }
 
         private void label2_Click(object sender, EventArgs e)
